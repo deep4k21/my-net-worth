@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(npm create vite@latest . -- --template react 2>&1)",
+      "PowerShell(npm create vite@latest my-net-worth -- --template react 2>&1)",
+      "PowerShell(npm install 2>&1)",
+      "PowerShell(npm install react-router-dom 2>&1)",
+      "PowerShell(npm install -D prettier eslint-config-prettier eslint-plugin-react-hooks @vitejs/plugin-react 2>&1)",
+      "PowerShell(npm run build 2>&1)",
+      "PowerShell(npm run lint 2>&1)",
+      "PowerShell(npm uninstall react-router-dom 2>&1)",
+      "PowerShell(npm install @supabase/supabase-js 2>&1)"
+    ],
+    "additionalDirectories": [
+      "C:\\Own-Projects\\My Net Worth\\my-net-worth"
+    ]
+  }
+}
