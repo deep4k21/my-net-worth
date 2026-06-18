@@ -56,8 +56,8 @@ export function FutureView({ sources, entries, recurring, isMobile }) {
                 color: result.futureNet >= result.currentNet ? 'var(--accent-text-md)' : 'var(--danger-md)',
                 background: result.futureNet >= result.currentNet ? 'var(--accent-bg)' : 'var(--danger-bg)',
               }}>
-                {result.futureNet >= result.currentNet ? '+' : ''}
-                {fmt(result.futureNet - result.currentNet)}
+                {result.futureNet >= result.currentNet ? '+' : '−'}
+                {fmt(Math.abs(result.futureNet - result.currentNet))}
                 {' '}over {result.totalMonths} months
               </div>
             </div>
@@ -91,7 +91,7 @@ export function FutureView({ sources, entries, recurring, isMobile }) {
                         color: c.gain > 0 ? 'var(--accent-text-md)' : 'var(--danger-md)',
                         background: c.gain > 0 ? 'var(--accent-bg)' : 'var(--danger-bg)',
                       }}>
-                        {c.gain > 0 ? '+' : ''}{fmtShort(c.gain)}
+                        {c.gain > 0 ? '+' : '−'}{fmtShort(Math.abs(c.gain))}
                       </div>
                     </div>
                     <div className={styles.changeAmts}>

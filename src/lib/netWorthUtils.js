@@ -4,9 +4,10 @@ export function fmt(n) {
 
 export function fmtShort(n) {
   const a = Math.abs(n)
-  if (a >= 1e7) return '₹' + (n / 1e7).toFixed(2) + ' Cr'
-  if (a >= 1e5) return '₹' + (n / 1e5).toFixed(1) + ' L'
-  return fmt(n)
+  const sign = n < 0 ? '−' : ''
+  if (a >= 1e7) return sign + '₹' + (a / 1e7).toFixed(2) + ' Cr'
+  if (a >= 1e5) return sign + '₹' + (a / 1e5).toFixed(1) + ' L'
+  return sign + '₹' + new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 }).format(a)
 }
 
 export const MONTH_LABELS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
