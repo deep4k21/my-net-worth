@@ -1,4 +1,6 @@
 :root {
+  color-scheme: light;
+
   /* ── Fonts ── */
   --font-ui:        'Sora', sans-serif;
   --font-display:   'Newsreader', serif;
@@ -67,6 +69,8 @@
 }
 
 [data-theme="dark"] {
+  color-scheme: dark;
+
   /* ── Page & shell ── */
   --bg-page:        #0f0e13;
   --bg-sidebar:     #13111a;

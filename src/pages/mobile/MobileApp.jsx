@@ -43,8 +43,8 @@ export function MobileApp() {
       ...en,
       sourceName: src.name || '—',
       color: src.color || '#ccc',
-      amtFmt: (isLiab ? '−' : '') + fmt(en.amount),
-      amtColor: isLiab ? 'var(--danger)' : 'var(--text-primary)',
+      amtFmt: (isLiab ? '−' : '+') + fmt(en.amount),
+      amtColor: isLiab ? 'var(--danger)' : 'var(--accent)',
     }
   })
 
