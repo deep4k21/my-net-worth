@@ -3,8 +3,8 @@
   align-items: center;
   justify-content: center;
   height: 100vh;
-  font-family: 'Hanken Grotesk', sans-serif;
-  color: #9a948a;
+  font-family: 'Sora', sans-serif;
+  color: var(--text-faint);
   font-size: 15px;
 }
 
@@ -13,9 +13,9 @@
   flex-direction: column;
   height: 100dvh;
   width: 100%;
-  font-family: 'Hanken Grotesk', sans-serif;
-  color: #1d1b18;
-  background: #f6f5f2;
+  font-family: 'Sora', sans-serif;
+  color: var(--text-primary);
+  background: var(--bg-page);
   overflow: hidden;
   -webkit-font-smoothing: antialiased;
   position: relative;
@@ -30,9 +30,9 @@
   align-items: center;
   justify-content: space-between;
   padding: 14px 18px 12px;
-  background: rgba(246, 245, 242, 0.9);
+  background: color-mix(in srgb, var(--bg-page) 90%, transparent);
   backdrop-filter: blur(10px);
-  border-bottom: 1px solid #ebe7df;
+  border-bottom: 1px solid var(--border-subtle);
   flex: none;
 }
 
@@ -46,7 +46,7 @@
   width: 24px;
   height: 24px;
   border-radius: 7px;
-  background: oklch(0.55 0.085 155);
+  background: var(--accent);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -61,6 +61,25 @@
   letter-spacing: -0.01em;
 }
 
+.themeToggle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: var(--text-faint);
+  background: var(--surface-hover);
+  border: none;
+  cursor: pointer;
+  flex: none;
+}
+
+.themeToggle:active {
+  background: var(--surface-muted);
+}
+
 .headerNet {
   text-align: right;
 }
@@ -69,16 +88,17 @@
   font-size: 9.5px;
   letter-spacing: 0.07em;
   text-transform: uppercase;
-  color: #a8a297;
+  color: var(--text-faint);
   font-weight: 600;
   line-height: 1;
 }
 
 .headerNetValue {
-  font-weight: 600;
+  font-weight: 700;
   font-size: 15px;
   margin-top: 2px;
   font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
 }
 
 /* Main scroll area */
@@ -95,9 +115,9 @@
   left: 0;
   right: 0;
   display: flex;
-  background: rgba(251, 250, 248, 0.93);
+  background: color-mix(in srgb, var(--bg-sidebar) 93%, transparent);
   backdrop-filter: blur(12px);
-  border-top: 1px solid #ebe7df;
+  border-top: 1px solid var(--border-subtle);
   padding: 8px 8px calc(10px + env(safe-area-inset-bottom));
   z-index: 20;
 }
@@ -112,7 +132,7 @@
   cursor: pointer;
   background: none;
   border: none;
-  font-family: 'Hanken Grotesk', sans-serif;
+  font-family: 'Sora', sans-serif;
 }
 
 .navDot {
@@ -129,7 +149,7 @@
 /* Typography */
 .metaLabel {
   font-size: 12.5px;
-  color: #9a948a;
+  color: var(--text-faint);
   font-weight: 500;
 }
 
@@ -142,12 +162,12 @@
 
 /* Card */
 .card {
-  background: #fff;
-  border: 1px solid #ece8e0;
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
   border-radius: 20px;
   padding: 22px 20px;
   margin-top: 18px;
-  box-shadow: 0 1px 3px rgba(60, 55, 45, 0.04);
+  box-shadow: var(--shadow-card);
 }
 
 .cardHeader {
@@ -164,7 +184,7 @@
 
 .cardMeta {
   font-size: 12px;
-  color: #9a948a;
+  color: var(--text-faint);
   font-weight: 500;
 }
 
@@ -173,16 +193,15 @@
   font-size: 11px;
   letter-spacing: 0.09em;
   text-transform: uppercase;
-  color: #9a948a;
+  color: var(--text-faint);
   font-weight: 600;
 }
 
 .heroAmount {
-  font-family: 'Newsreader', serif;
-  font-weight: 300;
+  font-weight: 700;
   font-size: 46px;
-  line-height: 1.02;
-  letter-spacing: -0.01em;
+  line-height: 1;
+  letter-spacing: -0.03em;
   margin-top: 8px;
   font-variant-numeric: tabular-nums;
 }
@@ -204,12 +223,12 @@
   gap: 14px;
   margin-top: 20px;
   padding-top: 18px;
-  border-top: 1px solid #f0ede6;
+  border-top: 1px solid var(--surface-inset);
 }
 
 .statLabel {
   font-size: 12px;
-  color: #9a948a;
+  color: var(--text-faint);
   font-weight: 500;
 }
 
@@ -234,7 +253,7 @@
   font-size: 10px;
   letter-spacing: 0.07em;
   text-transform: uppercase;
-  color: #9a948a;
+  color: var(--text-faint);
   font-weight: 600;
 }
 
@@ -267,7 +286,7 @@
 
 .legendName {
   flex: 1;
-  color: #54504a;
+  color: var(--text-secondary);
 }
 
 .legendPct {
@@ -289,11 +308,11 @@
 }
 
 .sourceCard {
-  background: #fff;
-  border: 1px solid #ece8e0;
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
   border-radius: 16px;
   padding: 17px 18px;
-  box-shadow: 0 1px 3px rgba(60, 55, 45, 0.04);
+  box-shadow: var(--shadow-card);
 }
 
 .sourceCardHeader {
@@ -345,13 +364,13 @@
 
 .sourceCount {
   font-size: 12px;
-  color: #9a948a;
+  color: var(--text-faint);
 }
 
 .sourceBar {
   height: 5px;
   border-radius: 99px;
-  background: #efece5;
+  background: var(--surface-muted);
   margin-top: 11px;
   overflow: hidden;
 }
@@ -366,11 +385,11 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  background: #fff;
-  border: 1px solid #ece8e0;
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
   border-radius: 15px;
   padding: 15px 16px;
-  box-shadow: 0 1px 3px rgba(60, 55, 45, 0.04);
+  box-shadow: var(--shadow-card);
 }
 
 .sourceManageInfo {
@@ -388,7 +407,7 @@
 
 .sourceManageMeta {
   font-size: 12px;
-  color: #9a948a;
+  color: var(--text-faint);
   margin-top: 2px;
   font-variant-numeric: tabular-nums;
 }
@@ -397,7 +416,7 @@
 .fieldLabel {
   font-size: 13px;
   font-weight: 600;
-  color: #54504a;
+  color: var(--text-secondary);
   display: block;
   margin-top: 7px;
 }
@@ -407,19 +426,19 @@
   width: 100%;
   margin-top: 7px;
   padding: 13px 14px;
-  border: 1px solid #e3dfd6;
+  border: 1px solid var(--border-strong);
   border-radius: 12px;
-  background: #fff;
+  background: var(--bg-input);
   font-size: 15px;
-  color: #1d1b18;
-  font-family: 'Hanken Grotesk', sans-serif;
+  color: var(--text-primary);
+  font-family: 'Sora', sans-serif;
   box-sizing: border-box;
 }
 
 .select:focus,
 .input:focus {
   outline: none;
-  border-color: oklch(0.6 0.08 155);
+  border-color: var(--accent-focus);
 }
 
 .currencySign {
@@ -427,8 +446,60 @@
   left: 14px;
   top: 50%;
   transform: translateY(-50%);
-  color: #9a948a;
+  color: var(--text-faint);
   font-size: 15px;
+}
+
+.repeatRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.repeatToggle {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  user-select: none;
+}
+
+.repeatToggle input[type="checkbox"] {
+  width: 15px;
+  height: 15px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.dayField {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dayLabel {
+  font-size: 12px;
+  color: var(--text-faint);
+}
+
+.dayInput {
+  width: 56px;
+  padding: 7px 8px;
+  border: 1px solid var(--border-strong);
+  border-radius: 9px;
+  font-size: 14px;
+  font-family: 'Sora', sans-serif;
+  color: var(--text-primary);
+  background: var(--bg-input);
+}
+
+.dayInput:focus {
+  outline: none;
+  border-color: var(--accent-focus);
 }
 
 .typeHint {
@@ -448,8 +519,8 @@
   display: flex;
   align-items: center;
   gap: 11px;
-  background: #fff;
-  border: 1px solid #ece8e0;
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
   border-radius: 13px;
   padding: 13px 14px;
 }
@@ -476,7 +547,7 @@
 
 .entrySource {
   font-size: 11.5px;
-  color: #9a948a;
+  color: var(--text-faint);
 }
 
 .entryAmt {
@@ -486,7 +557,7 @@
 }
 
 .deleteBtn {
-  color: #bcb6aa;
+  color: var(--icon-muted);
   font-size: 18px;
   line-height: 1;
   padding: 2px 4px;
@@ -497,7 +568,7 @@
 }
 
 .deleteBtn:active {
-  color: oklch(0.55 0.10 32);
+  color: var(--danger);
 }
 
 /* Toggle */
@@ -505,7 +576,7 @@
   display: flex;
   gap: 8px;
   margin-top: 7px;
-  background: #f3f1ea;
+  background: var(--bg-toggle);
   padding: 4px;
   border-radius: 12px;
 }
@@ -518,39 +589,39 @@
   font-size: 14px;
   cursor: pointer;
   border: none;
-  font-family: 'Hanken Grotesk', sans-serif;
+  font-family: 'Sora', sans-serif;
 }
 
 /* Buttons */
 .btnPrimary {
-  background: oklch(0.55 0.085 155);
+  background: var(--accent);
   color: #fbfdfb;
   padding: 14px;
   border-radius: 12px;
   font-weight: 600;
   font-size: 15px;
-  box-shadow: 0 1px 2px rgba(40, 70, 50, 0.18);
+  box-shadow: 0 1px 2px var(--accent-shadow);
   cursor: pointer;
   border: none;
-  font-family: 'Hanken Grotesk', sans-serif;
+  font-family: 'Sora', sans-serif;
 }
 
 .btnPrimary:active {
-  background: oklch(0.50 0.085 155);
+  background: var(--accent-hover);
 }
 
 .btnDark {
-  background: #1d1b18;
-  color: #faf9f6;
+  background: var(--text-primary);
+  color: var(--text-inverse);
   padding: 14px;
   border-radius: 12px;
   font-weight: 600;
   font-size: 15px;
   cursor: pointer;
   border: none;
-  font-family: 'Hanken Grotesk', sans-serif;
+  font-family: 'Sora', sans-serif;
 }
 
 .btnDark:active {
-  background: #34302a;
+  background: var(--icon-dark);
 }

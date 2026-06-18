@@ -1,3 +1,5 @@
+@import './styles/theme.css';
+
 *,
 *::before,
 *::after {
@@ -12,10 +14,10 @@ html, body, #root {
 }
 
 body {
-  font-family: 'Hanken Grotesk', system-ui, -apple-system, sans-serif;
+  font-family: 'Sora', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
-  background: #f6f5f2;
-  color: #1d1b18;
+  background: var(--bg-page);
+  color: var(--text-primary);
 }
 
 input, button, select, textarea {
@@ -30,7 +32,7 @@ button {
 }
 
 ::placeholder {
-  color: #b8b2a6;
+  color: var(--text-placeholder);
 }
 
 input:focus, select:focus {
@@ -43,7 +45,7 @@ input:focus, select:focus {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #dedacf;
+  background: var(--scrollbar-thumb);
   border-radius: 8px;
-  border: 3px solid #f6f5f2;
+  border: 3px solid var(--bg-page);
 }

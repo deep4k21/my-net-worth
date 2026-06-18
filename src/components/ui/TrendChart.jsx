@@ -24,14 +24,14 @@ export function TrendChart({ series, labels, gradientId = 'tgrad', width = 640, 
       </defs>
       {[0.25, 0.5, 0.75].map((g, i) => {
         const y = padT + g * (height - padT - padB)
-        return <line key={i} x1={padL} y1={y} x2={width - padR} y2={y} stroke="#efece5" strokeWidth={1} />
+        return <line key={i} x1={padL} y1={y} x2={width - padR} y2={y} stroke="var(--surface-muted)" strokeWidth={1} />
       })}
       <path d={area} fill={`url(#${gradientId})`} />
       <path d={line} fill="none" stroke={accent} strokeWidth={2.4} strokeLinejoin="round" strokeLinecap="round" />
-      <circle cx={X(n - 1)} cy={Y(series[n - 1])} r={4.8} fill={accent} stroke="#fff" strokeWidth={2.2} />
+      <circle cx={X(n - 1)} cy={Y(series[n - 1])} r={4.8} fill={accent} stroke="var(--bg-card)" strokeWidth={2.2} />
       {labels.map((l, i) =>
         (i % labelStep === 0 || i === n - 1) ? (
-          <text key={i} x={X(i)} y={height - (width < 500 ? 8 : 9)} fontSize={12} fill="#a8a297" textAnchor="middle" fontFamily="Hanken Grotesk">{l}</text>
+          <text key={i} x={X(i)} y={height - (width < 500 ? 8 : 9)} fontSize={12} fill="var(--text-faint)" textAnchor="middle" fontFamily="Sora">{l}</text>
         ) : null
       )}
     </svg>

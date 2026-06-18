@@ -1,0 +1,284 @@
+.item {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: 13px;
+  padding: 11px 13px;
+}
+
+.dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 3px;
+  flex: none;
+}
+
+/* View mode */
+.info {
+  flex: 1;
+  min-width: 0;
+}
+
+.label {
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.source {
+  font-size: 11.5px;
+  color: var(--text-faint);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.amt {
+  font-size: 14px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.editBtn {
+  color: var(--icon-muted);
+  font-size: 15px;
+  line-height: 1;
+  padding: 3px 5px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: inherit;
+  flex: none;
+}
+
+.editBtn:hover {
+  color: var(--accent);
+}
+
+.deleteBtn {
+  color: var(--icon-muted);
+  font-size: 18px;
+  line-height: 1;
+  padding: 2px 4px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: inherit;
+  flex: none;
+}
+
+.deleteBtn:hover {
+  color: var(--danger);
+}
+
+/* Recurring badges */
+.recurringBadge {
+  display: inline-block;
+  align-self: flex-start;
+  font-size: 10.5px;
+  color: var(--accent-text);
+  font-weight: 600;
+  background: var(--accent-bg);
+  padding: 2px 7px;
+  border-radius: 5px;
+}
+
+.recurringBadgeRed {
+  display: inline-block;
+  align-self: flex-start;
+  font-size: 10.5px;
+  color: var(--danger-text-dk);
+  font-weight: 600;
+  background: var(--danger-bg-lt);
+  padding: 2px 7px;
+  border-radius: 5px;
+}
+
+/* Edit block */
+.editBlock {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: 13px;
+  padding: 11px 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.editRow {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.recurringBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-left: 20px;
+}
+
+.repeatRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.repeatToggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  user-select: none;
+}
+
+.repeatToggle input[type="checkbox"] {
+  width: 14px;
+  height: 14px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.dayField {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dayLabel {
+  font-size: 12px;
+  color: var(--text-faint);
+}
+
+.dayInput {
+  width: 56px;
+  padding: 5px 8px;
+  border: 1px solid var(--border-input);
+  border-radius: 7px;
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--text-primary);
+  background: var(--bg-page);
+}
+
+.dayInput:focus {
+  outline: none;
+  border-color: var(--accent-focus);
+}
+
+.recurringFields {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.freqRow,
+.recAmtRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.freqSelect {
+  padding: 5px 8px;
+  border: 1px solid var(--border-input);
+  border-radius: 7px;
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--text-primary);
+  background: var(--bg-page);
+}
+
+.freqSelect:focus {
+  outline: none;
+  border-color: var(--accent-focus);
+}
+
+.recAmtWrap {
+  position: relative;
+}
+
+/* Edit mode */
+.editFields {
+  flex: 1;
+  display: flex;
+  gap: 8px;
+  min-width: 0;
+}
+
+.amtWrap {
+  position: relative;
+  flex: none;
+  width: 110px;
+}
+
+.currency {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-faint);
+  font-size: 13px;
+  pointer-events: none;
+}
+
+.editInput {
+  width: 100%;
+  padding: 7px 10px;
+  border: 1px solid var(--border-input);
+  border-radius: 8px;
+  font-size: 13.5px;
+  font-family: inherit;
+  color: var(--text-primary);
+  background: var(--bg-page);
+  box-sizing: border-box;
+}
+
+.editInput:focus {
+  outline: none;
+  border-color: var(--accent-focus);
+}
+
+.saveBtn {
+  color: var(--accent-text);
+  font-size: 16px;
+  font-weight: 700;
+  padding: 4px 6px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: inherit;
+  flex: none;
+}
+
+.saveBtn:hover {
+  color: var(--accent-text-xs);
+}
+
+.saveBtn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.cancelBtn {
+  color: var(--icon-muted);
+  font-size: 14px;
+  padding: 4px 5px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: inherit;
+  flex: none;
+}
+
+.cancelBtn:hover {
+  color: var(--danger);
+}

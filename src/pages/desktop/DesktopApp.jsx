@@ -1,18 +1,25 @@
 import { useState } from 'react'
-import { useNetWorth } from '@/hooks/useNetWorth'
+import { useNetWorth, FREQUENCIES } from '@/hooks/useNetWorth'
+import { useTheme } from '@/hooks/useTheme'
 import {
   fmt, fmtShort, getGreeting, getDateFmt,
   computeNetWorth, buildBreakdown, buildSourcesView, buildTrendSeries,
 } from '@/lib/netWorthUtils'
 import { TrendChart } from '@/components/ui/TrendChart'
 import { DonutChart } from '@/components/ui/DonutChart'
+import { EditableEntryItem } from '@/components/ui/EditableEntryItem'
+import { FutureView } from '@/components/ui/FutureView'
 import styles from './DesktopApp.module.css'
 
 export function DesktopApp() {
   const [view, setView] = useState('dashboard')
+  const { dark, toggle: toggleTheme } = useTheme()
   const {
-    sources, entries, history, loading, form, newSource, setNewSource,
-    setForm, addEntry, deleteEntry, addSource, deleteSource,
+    sources, entries, history, recurring, loading,
+    form, newSource, setNewSource,
+    setForm, addEntry, deleteEntry, updateEntry,
+    enableRecurring, disableRecurring, updateRecurring,
+    addSource, deleteSource,
   } = useNetWorth()
 
   if (loading) return <div className={styles.loading}>Loading…</div>
@@ -22,8 +29,8 @@ export function DesktopApp() {
   const change = net - prev
   const changePct = prev ? (change / prev) * 100 : 0
   const pos = change >= 0
-  const changeColor = pos ? 'oklch(0.48 0.09 155)' : 'oklch(0.54 0.12 30)'
-  const changeBg = pos ? 'oklch(0.96 0.03 155)' : 'oklch(0.96 0.035 40)'
+  const changeColor = pos ? 'var(--accent-text-dk)' : 'var(--danger-dk)'
+  const changeBg = pos ? 'var(--accent-bg-lt)' : 'var(--danger-bg)'
 
   const { series, labels } = buildTrendSeries(history, net)
   const breakdown = buildBreakdown(sources, entries, assets)
@@ -37,7 +44,7 @@ export function DesktopApp() {
       sourceName: src.name || '—',
       color: src.color || '#ccc',
       amtFmt: (isLiab ? '−' : '') + fmt(en.amount),
-      amtColor: isLiab ? 'oklch(0.55 0.10 32)' : '#1d1b18',
+      amtColor: isLiab ? 'var(--danger)' : 'var(--text-primary)',
     }
   })
 
@@ -45,11 +52,11 @@ export function DesktopApp() {
   const formIsLiab = formSrc.type === 'liability'
 
   const nav = (v) => ({
-    bg: view === v ? '#edeae3' : 'transparent',
-    color: view === v ? '#1d1b18' : '#8a857c',
-    dot: view === v ? 'oklch(0.55 0.085 155)' : '#cdc8bd',
+    bg: view === v ? 'var(--surface-hover)' : 'transparent',
+    color: view === v ? 'var(--text-primary)' : 'var(--icon-secondary)',
+    dot: view === v ? 'var(--accent)' : 'var(--dot-inactive)',
   })
-  const nd = nav('dashboard'), na = nav('add'), ns = nav('sources')
+  const nd = nav('dashboard'), na = nav('add'), ns = nav('sources'), nf = nav('future')
 
   const nsA = newSource.type === 'asset'
 
@@ -60,6 +67,9 @@ export function DesktopApp() {
         <div className={styles.brand}>
           <div className={styles.brandIcon}>W</div>
           <span className={styles.brandName}>Worth</span>
+          <button onClick={toggleTheme} className={styles.themeToggle} title={dark ? 'Switch to light' : 'Switch to dark'}>
+            {dark ? '☀' : '◑'}
+          </button>
         </div>
 
         <nav className={styles.nav}>
@@ -74,6 +84,10 @@ export function DesktopApp() {
           <button onClick={() => setView('sources')} className={styles.navBtn} style={{ background: ns.bg, color: ns.color }}>
             <span className={styles.navDot} style={{ background: ns.dot }} />
             Sources
+          </button>
+          <button onClick={() => setView('future')} className={styles.navBtn} style={{ background: nf.bg, color: nf.color }}>
+            <span className={styles.navDot} style={{ background: nf.dot }} />
+            See future
           </button>
         </nav>
 
@@ -117,7 +131,7 @@ export function DesktopApp() {
                   </div>
                   <div>
                     <div className={styles.statLabel}>Liabilities</div>
-                    <div className={styles.statValue} style={{ color: 'oklch(0.55 0.10 32)' }}>−{fmt(liab)}</div>
+                    <div className={styles.statValue} style={{ color: 'var(--danger)' }}>−{fmt(liab)}</div>
                   </div>
                 </div>
               </div>
@@ -191,7 +205,7 @@ export function DesktopApp() {
                   >
                     {sources.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                   </select>
-                  <div className={styles.typeHint} style={{ color: formIsLiab ? 'oklch(0.54 0.10 32)' : 'oklch(0.46 0.07 155)' }}>
+                  <div className={styles.typeHint} style={{ color: formIsLiab ? 'var(--danger-dk)' : 'var(--accent-text)' }}>
                     {formIsLiab ? 'This will be subtracted from your net worth.' : 'This will be added to your net worth.'}
                   </div>
 
@@ -216,7 +230,54 @@ export function DesktopApp() {
                     />
                   </div>
 
-                  <button className={styles.btnPrimary} style={{ width: '100%', marginTop: 24 }} onClick={addEntry}>
+                  <div className={styles.repeatRow}>
+                    <label className={styles.repeatToggle}>
+                      <input type="checkbox" checked={form.repeat} onChange={e => setForm('repeat', e.target.checked)} />
+                      <span>Recurring</span>
+                    </label>
+                    {form.repeat && (
+                      <div className={styles.dayField}>
+                        <span className={styles.dayLabel}>on day</span>
+                        <input
+                          className={styles.dayInput}
+                          value={form.dayOfMonth}
+                          onChange={e => setForm('dayOfMonth', e.target.value.replace(/[^0-9]/g, ''))}
+                          inputMode="numeric"
+                          placeholder="1–28"
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  {form.repeat && (
+                    <>
+                      <label className={styles.fieldLabel} style={{ marginTop: 14 }}>Frequency</label>
+                      <select
+                        value={form.frequency}
+                        onChange={e => setForm('frequency', e.target.value)}
+                        className={styles.select}
+                      >
+                        {FREQUENCIES.map(f => <option key={f.value} value={f.value}>{f.label}</option>)}
+                      </select>
+
+                      <label className={styles.fieldLabel} style={{ marginTop: 14 }}>
+                        {formIsLiab ? 'Reduction per period (optional)' : 'Addition per period (optional)'}
+                      </label>
+                      <div style={{ position: 'relative', marginTop: 7 }}>
+                        <span className={styles.currencySign}>₹</span>
+                        <input
+                          value={form.recurringAmount}
+                          onChange={e => setForm('recurringAmount', e.target.value.replace(/[^0-9.]/g, ''))}
+                          inputMode="numeric"
+                          placeholder="0"
+                          className={styles.input}
+                          style={{ paddingLeft: 30 }}
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  <button className={styles.btnPrimary} style={{ width: '100%', marginTop: 20 }} onClick={addEntry}>
                     Add to net worth
                   </button>
                 </div>
@@ -224,19 +285,37 @@ export function DesktopApp() {
                 <div>
                   <h2 className={styles.sectionTitle} style={{ marginTop: 2, marginBottom: 12 }}>Recent entries</h2>
                   <div className={styles.entryList}>
-                    {recentEntries.map(e => (
-                      <div key={e.id} className={styles.entryItem}>
-                        <span className={styles.entryDot} style={{ background: e.color }} />
-                        <div className={styles.entryInfo}>
-                          <div className={styles.entryLabel}>{e.label}</div>
-                          <div className={styles.entrySource}>{e.sourceName}</div>
-                        </div>
-                        <span className={styles.entryAmt} style={{ color: e.amtColor }}>{e.amtFmt}</span>
-                        <button className={styles.deleteBtn} onClick={() => deleteEntry(e.id)} title="Remove">×</button>
-                      </div>
-                    ))}
+                    {recentEntries.map(e => {
+                      const rec = recurring.find(r => r.entryId === e.id) ?? null
+                      const src = srcById[e.sourceId]
+                      return (
+                        <EditableEntryItem
+                          key={e.id}
+                          entry={e}
+                          recurringRule={rec}
+                          isLiability={src?.type === 'liability'}
+                          onUpdate={updateEntry}
+                          onDelete={deleteEntry}
+                          onEnableRecurring={enableRecurring}
+                          onDisableRecurring={disableRecurring}
+                          onUpdateRecurring={updateRecurring}
+                        />
+                      )
+                    })}
                   </div>
                 </div>
+              </div>
+            </section>
+          )}
+
+          {/* FUTURE */}
+          {view === 'future' && (
+            <section>
+              <div className={styles.metaLabel}>Projection</div>
+              <h1 className={styles.pageTitle}>See your future net worth</h1>
+              <p className={styles.pageDesc}>Based on your recurring entries, we'll estimate where you'll be by any month.</p>
+              <div style={{ marginTop: 28 }}>
+                <FutureView sources={sources} entries={entries} recurring={recurring} isMobile={false} />
               </div>
             </section>
           )}
@@ -280,18 +359,18 @@ export function DesktopApp() {
                       onClick={() => setNewSource(ns => ({ ...ns, type: 'asset' }))}
                       className={styles.toggleBtn}
                       style={{
-                        background: nsA ? '#fff' : 'transparent',
-                        color: nsA ? '#1d1b18' : '#8a857c',
-                        boxShadow: nsA ? '0 1px 2px rgba(0,0,0,.08)' : 'none',
+                        background: nsA ? 'var(--bg-card)' : 'transparent',
+                        color: nsA ? 'var(--text-primary)' : 'var(--icon-secondary)',
+                        boxShadow: nsA ? 'var(--shadow-toggle)' : 'none',
                       }}
                     >Asset</button>
                     <button
                       onClick={() => setNewSource(ns => ({ ...ns, type: 'liability' }))}
                       className={styles.toggleBtn}
                       style={{
-                        background: !nsA ? '#fff' : 'transparent',
-                        color: !nsA ? '#1d1b18' : '#8a857c',
-                        boxShadow: !nsA ? '0 1px 2px rgba(0,0,0,.08)' : 'none',
+                        background: !nsA ? 'var(--bg-card)' : 'transparent',
+                        color: !nsA ? 'var(--text-primary)' : 'var(--icon-secondary)',
+                        boxShadow: !nsA ? 'var(--shadow-toggle)' : 'none',
                       }}
                     >Liability</button>
                   </div>

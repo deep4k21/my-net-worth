@@ -63,8 +63,8 @@ export function buildSourcesView(sources, entries, onDelete) {
     barPctStr: Math.max(3, (t.total / maxTot) * 100).toFixed(0) + '%',
     countFmt: t.count + (t.count === 1 ? ' entry' : ' entries'),
     tagLabel: t.src.type === 'liability' ? 'Liability' : 'Asset',
-    tagColor: t.src.type === 'liability' ? 'oklch(0.52 0.11 32)' : 'oklch(0.46 0.07 155)',
-    tagBg: t.src.type === 'liability' ? 'oklch(0.95 0.035 40)' : 'oklch(0.95 0.03 155)',
+    tagColor: t.src.type === 'liability' ? 'var(--danger-text)' : 'var(--accent-text)',
+    tagBg: t.src.type === 'liability' ? 'var(--danger-bg)' : 'var(--accent-bg)',
     onDelete: () => onDelete(t.src.id),
   }))
 }
@@ -76,6 +76,97 @@ export function buildTrendSeries(history, net) {
     MONTH_LABELS[new Date(now.getFullYear(), now.getMonth() - (series.length - 1 - i), 1).getMonth()]
   )
   return { series, labels }
+}
+
+export function buildFutureProjection(sources, entries, recurring, targetYear, targetMonth) {
+  const now = new Date()
+  const currentYear = now.getFullYear()
+  const currentMonth = now.getMonth() + 1 // 1-indexed
+
+  const totalMonths =
+    (targetYear - currentYear) * 12 + (targetMonth - currentMonth)
+
+  if (totalMonths <= 0) return null
+
+  const srcById = Object.fromEntries(sources.map(s => [s.id, s]))
+
+  // project each entry
+  const projectedEntries = entries.map(en => {
+    const rec = recurring.find(r => r.entryId === en.id)
+    if (!rec || !rec.recurringAmount) return { ...en, projected: en.amount, gain: 0, periods: 0 }
+
+    const divisor = rec.frequency === 'monthly' ? 1
+      : rec.frequency === 'quarterly' ? 3
+      : rec.frequency === 'half-yearly' ? 6
+      : 12
+    const src = srcById[en.sourceId]
+    const isLiab = src?.type === 'liability'
+
+    // for liabilities, cap periods so amount never goes below zero
+    const maxPeriods = isLiab && rec.recurringAmount < 0
+      ? Math.ceil(en.amount / Math.abs(rec.recurringAmount))
+      : Infinity
+    const periods = Math.min(Math.floor(totalMonths / divisor), maxPeriods)
+
+    const gain = periods * rec.recurringAmount
+    const projected = isLiab ? Math.max(0, en.amount + gain) : en.amount + gain
+    return { ...en, projected, gain: projected - en.amount, periods, rec }
+  })
+
+  // build month-by-month series for the chart
+  const series = []
+  const labels = []
+  for (let m = 0; m <= totalMonths; m++) {
+    const d = new Date(currentYear, currentMonth - 1 + m, 1)
+    let assets = 0, liab = 0
+    projectedEntries.forEach(en => {
+      const src = srcById[en.sourceId]
+      if (!src) return
+      const rec = recurring.find(r => r.entryId === en.id)
+      let amt = en.amount
+      if (rec?.recurringAmount) {
+        const divisor = rec.frequency === 'monthly' ? 1
+          : rec.frequency === 'quarterly' ? 3
+          : rec.frequency === 'half-yearly' ? 6
+          : 12
+        const isLiab = src?.type === 'liability'
+        const maxPeriods = isLiab && rec.recurringAmount < 0
+          ? Math.ceil(en.amount / Math.abs(rec.recurringAmount))
+          : Infinity
+        const p = Math.min(Math.floor(m / divisor), maxPeriods)
+        amt = isLiab ? Math.max(0, en.amount + p * rec.recurringAmount) : en.amount + p * rec.recurringAmount
+      }
+      if (src.type === 'liability') liab += Math.max(0, amt)
+      else assets += amt
+    })
+    series.push(assets - liab)
+    labels.push(MONTH_LABELS[d.getMonth()] + (m === 0 || d.getMonth() === 0 ? ' ' + d.getFullYear().toString().slice(2) : ''))
+  }
+
+  // build breakdown of changed entries
+  const changes = projectedEntries
+    .filter(en => en.gain !== 0)
+    .map(en => {
+      const src = srcById[en.sourceId] || {}
+      const isLiab = src.type === 'liability'
+      return {
+        id: en.id,
+        label: en.label,
+        sourceName: src.name || '—',
+        color: src.color || '#ccc',
+        current: en.amount,
+        projected: en.projected,
+        gain: en.gain,
+        isLiab,
+        periods: en.periods,
+        frequency: en.rec?.frequency,
+      }
+    })
+
+  const currentNet = series[0]
+  const futureNet = series[series.length - 1]
+
+  return { series, labels, currentNet, futureNet, changes, totalMonths }
 }
 
 export const SOURCE_PALETTE = [

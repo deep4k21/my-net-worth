@@ -1,18 +1,25 @@
 import { useState } from 'react'
-import { useNetWorth } from '@/hooks/useNetWorth'
+import { useNetWorth, FREQUENCIES } from '@/hooks/useNetWorth'
+import { useTheme } from '@/hooks/useTheme'
 import {
   fmt, fmtShort, getGreeting, getDateFmt,
   computeNetWorth, buildBreakdown, buildSourcesView, buildTrendSeries,
 } from '@/lib/netWorthUtils'
 import { TrendChart } from '@/components/ui/TrendChart'
 import { DonutChart } from '@/components/ui/DonutChart'
+import { EditableEntryItem } from '@/components/ui/EditableEntryItem'
+import { FutureView } from '@/components/ui/FutureView'
 import styles from './MobileApp.module.css'
 
 export function MobileApp() {
   const [view, setView] = useState('dashboard')
+  const { dark, toggle: toggleTheme } = useTheme()
   const {
-    sources, entries, history, loading, form, newSource, setNewSource,
-    setForm, addEntry, deleteEntry, addSource, deleteSource,
+    sources, entries, history, recurring, loading,
+    form, newSource, setNewSource,
+    setForm, addEntry, deleteEntry, updateEntry,
+    enableRecurring, disableRecurring, updateRecurring,
+    addSource, deleteSource,
   } = useNetWorth()
 
   if (loading) return <div className={styles.loading}>Loading…</div>
@@ -22,8 +29,8 @@ export function MobileApp() {
   const change = net - prev
   const changePct = prev ? (change / prev) * 100 : 0
   const pos = change >= 0
-  const changeColor = pos ? 'oklch(0.48 0.09 155)' : 'oklch(0.54 0.12 30)'
-  const changeBg = pos ? 'oklch(0.96 0.03 155)' : 'oklch(0.96 0.035 40)'
+  const changeColor = pos ? 'var(--accent-text-dk)' : 'var(--danger-dk)'
+  const changeBg = pos ? 'var(--accent-bg-lt)' : 'var(--danger-bg)'
 
   const { series, labels } = buildTrendSeries(history, net)
   const breakdown = buildBreakdown(sources, entries, assets)
@@ -37,7 +44,7 @@ export function MobileApp() {
       sourceName: src.name || '—',
       color: src.color || '#ccc',
       amtFmt: (isLiab ? '−' : '') + fmt(en.amount),
-      amtColor: isLiab ? 'oklch(0.55 0.10 32)' : '#1d1b18',
+      amtColor: isLiab ? 'var(--danger)' : 'var(--text-primary)',
     }
   })
 
@@ -45,11 +52,11 @@ export function MobileApp() {
   const formIsLiab = formSrc.type === 'liability'
 
   const nav = (v) => ({
-    color: view === v ? '#1d1b18' : '#9a948a',
-    dot: view === v ? 'oklch(0.55 0.085 155)' : '#cdc8bd',
+    color: view === v ? 'var(--text-primary)' : 'var(--text-faint)',
+    dot: view === v ? 'var(--accent)' : 'var(--dot-inactive)',
     op: view === v ? 1 : 0.5,
   })
-  const nd = nav('dashboard'), na = nav('add'), ns = nav('sources')
+  const nd = nav('dashboard'), na = nav('add'), ns = nav('sources'), nf = nav('future')
   const nsA = newSource.type === 'asset'
 
   return (
@@ -60,6 +67,9 @@ export function MobileApp() {
           <div className={styles.brandIcon}>W</div>
           <span className={styles.brandName}>Worth</span>
         </div>
+        <button onClick={toggleTheme} className={styles.themeToggle} title={dark ? 'Light mode' : 'Dark mode'}>
+          {dark ? '☀' : '◑'}
+        </button>
         <div className={styles.headerNet}>
           <div className={styles.headerNetLabel}>Net worth</div>
           <div className={styles.headerNetValue}>{fmt(net)}</div>
@@ -89,7 +99,7 @@ export function MobileApp() {
                 </div>
                 <div style={{ flex: 1 }}>
                   <div className={styles.statLabel}>Liabilities</div>
-                  <div className={styles.statValue} style={{ color: 'oklch(0.55 0.10 32)' }}>−{fmt(liab)}</div>
+                  <div className={styles.statValue} style={{ color: 'var(--danger)' }}>−{fmt(liab)}</div>
                 </div>
               </div>
             </div>
@@ -161,7 +171,7 @@ export function MobileApp() {
               >
                 {sources.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
               </select>
-              <div className={styles.typeHint} style={{ color: formIsLiab ? 'oklch(0.54 0.10 32)' : 'oklch(0.46 0.07 155)' }}>
+              <div className={styles.typeHint} style={{ color: formIsLiab ? 'var(--danger-dk)' : 'var(--accent-text)' }}>
                 {formIsLiab ? 'This will be subtracted from your net worth.' : 'This will be added to your net worth.'}
               </div>
 
@@ -186,24 +196,88 @@ export function MobileApp() {
                 />
               </div>
 
-              <button className={styles.btnPrimary} style={{ width: '100%', marginTop: 22 }} onClick={addEntry}>
+              <div className={styles.repeatRow}>
+                <label className={styles.repeatToggle}>
+                  <input type="checkbox" checked={form.repeat} onChange={e => setForm('repeat', e.target.checked)} />
+                  <span>Recurring</span>
+                </label>
+                {form.repeat && (
+                  <div className={styles.dayField}>
+                    <span className={styles.dayLabel}>on day</span>
+                    <input
+                      className={styles.dayInput}
+                      value={form.dayOfMonth}
+                      onChange={e => setForm('dayOfMonth', e.target.value.replace(/[^0-9]/g, ''))}
+                      inputMode="numeric"
+                      placeholder="1–28"
+                    />
+                  </div>
+                )}
+              </div>
+
+              {form.repeat && (
+                <>
+                  <label className={styles.fieldLabel} style={{ marginTop: 14 }}>Frequency</label>
+                  <select
+                    value={form.frequency}
+                    onChange={e => setForm('frequency', e.target.value)}
+                    className={styles.select}
+                  >
+                    {FREQUENCIES.map(f => <option key={f.value} value={f.value}>{f.label}</option>)}
+                  </select>
+
+                  <label className={styles.fieldLabel} style={{ marginTop: 14 }}>
+                    {formIsLiab ? 'Reduction per period (optional)' : 'Addition per period (optional)'}
+                  </label>
+                  <div style={{ position: 'relative', marginTop: 7 }}>
+                    <span className={styles.currencySign}>₹</span>
+                    <input
+                      value={form.recurringAmount}
+                      onChange={e => setForm('recurringAmount', e.target.value.replace(/[^0-9.]/g, ''))}
+                      inputMode="numeric"
+                      placeholder="0"
+                      className={styles.input}
+                      style={{ paddingLeft: 30 }}
+                    />
+                  </div>
+                </>
+              )}
+
+              <button className={styles.btnPrimary} style={{ width: '100%', marginTop: 20 }} onClick={addEntry}>
                 Add to net worth
               </button>
             </div>
 
             <h2 className={styles.sectionTitle}>Recent entries</h2>
             <div className={styles.entryList}>
-              {recentEntries.map(e => (
-                <div key={e.id} className={styles.entryItem}>
-                  <span className={styles.entryDot} style={{ background: e.color }} />
-                  <div className={styles.entryInfo}>
-                    <div className={styles.entryLabel}>{e.label}</div>
-                    <div className={styles.entrySource}>{e.sourceName}</div>
-                  </div>
-                  <span className={styles.entryAmt} style={{ color: e.amtColor }}>{e.amtFmt}</span>
-                  <button className={styles.deleteBtn} onClick={() => deleteEntry(e.id)} title="Remove">×</button>
-                </div>
-              ))}
+              {recentEntries.map(e => {
+                const rec = recurring.find(r => r.entryId === e.id) ?? null
+                const src = srcById[e.sourceId]
+                return (
+                  <EditableEntryItem
+                    key={e.id}
+                    entry={e}
+                    recurringRule={rec}
+                    isLiability={src?.type === 'liability'}
+                    onUpdate={updateEntry}
+                    onDelete={deleteEntry}
+                    onEnableRecurring={enableRecurring}
+                    onDisableRecurring={disableRecurring}
+                    onUpdateRecurring={updateRecurring}
+                  />
+                )
+              })}
+            </div>
+          </section>
+        )}
+
+        {/* FUTURE */}
+        {view === 'future' && (
+          <section>
+            <div className={styles.metaLabel}>Projection</div>
+            <h1 className={styles.pageTitle}>See future</h1>
+            <div style={{ marginTop: 18 }}>
+              <FutureView sources={sources} entries={entries} recurring={recurring} isMobile={true} />
             </div>
           </section>
         )}
@@ -230,18 +304,18 @@ export function MobileApp() {
                   onClick={() => setNewSource(ns => ({ ...ns, type: 'asset' }))}
                   className={styles.toggleBtn}
                   style={{
-                    background: nsA ? '#fff' : 'transparent',
-                    color: nsA ? '#1d1b18' : '#8a857c',
-                    boxShadow: nsA ? '0 1px 2px rgba(0,0,0,.08)' : 'none',
+                    background: nsA ? 'var(--bg-card)' : 'transparent',
+                    color: nsA ? 'var(--text-primary)' : 'var(--icon-secondary)',
+                    boxShadow: nsA ? 'var(--shadow-toggle)' : 'none',
                   }}
                 >Asset</button>
                 <button
                   onClick={() => setNewSource(ns => ({ ...ns, type: 'liability' }))}
                   className={styles.toggleBtn}
                   style={{
-                    background: !nsA ? '#fff' : 'transparent',
-                    color: !nsA ? '#1d1b18' : '#8a857c',
-                    boxShadow: !nsA ? '0 1px 2px rgba(0,0,0,.08)' : 'none',
+                    background: !nsA ? 'var(--bg-card)' : 'transparent',
+                    color: !nsA ? 'var(--text-primary)' : 'var(--icon-secondary)',
+                    boxShadow: !nsA ? 'var(--shadow-toggle)' : 'none',
                   }}
                 >Liability</button>
               </div>
@@ -281,6 +355,10 @@ export function MobileApp() {
         <button onClick={() => setView('sources')} className={styles.navBtn} style={{ color: ns.color }}>
           <span className={styles.navDot} style={{ background: ns.dot, opacity: ns.op }} />
           <span className={styles.navLabel}>Sources</span>
+        </button>
+        <button onClick={() => setView('future')} className={styles.navBtn} style={{ color: nf.color }}>
+          <span className={styles.navDot} style={{ background: nf.dot, opacity: nf.op }} />
+          <span className={styles.navLabel}>Future</span>
         </button>
       </nav>
     </div>
